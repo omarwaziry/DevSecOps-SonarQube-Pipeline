@@ -1,0 +1,16 @@
+# Terraform runtime and state files
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+*.tfvars
+*.tfvars.json
+
+# Local sensitive environment variables
+.env
+sq-token
+
+# Docker logs
+*.log
+
+
