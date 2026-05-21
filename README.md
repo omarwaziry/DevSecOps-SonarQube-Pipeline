@@ -1,7 +1,10 @@
 # Automated DevSecOps Code Quality & Compliance Pipeline
 
-A robust continuous integration (CI) code-quality gate mechanism built on AWS infrastructure, designed to intercept developer commits and run automated security profiling natively before code leaves the workspace.
-## System Architecture & Data Flow
+This project provides a robust, cloud-native CI pipeline for code quality and compliance, leveraging AWS, Docker, SonarQube, and Terraform. It intercepts developer commits and runs automated security profiling before code leaves your workspace.
+
+---
+
+## 🚀 System Architecture & Data Flow
 
 ```text
   [ Developer Workspace ]                    [ AWS Cloud Platform (VPC Target) ]
@@ -24,19 +27,102 @@ A robust continuous integration (CI) code-quality gate mechanism built on AWS in
  │ (sonar-scanner-cli)  │ ───[ SAST Telemetry Payload ]───────┘
  │ Volume Mount: $(pwd) │     Inbound Route: TCP Port 8080
  └──────────────────────┘
-## Key Features
-* **Infrastructure as Code (IaC):** Automated provisioning of the underlying AWS sandbox environment.
-* **Shift-Left Automation:** Custom Git pre-commit hooks to automate static application security testing (SAST).
-* **Containerized Scanner Execution:** Using ephemeral Docker spaces (`sonarsource/sonar-scanner-cli`) to run analysis independent of host runtimes.
+```
 
-## How It Works
-1. A developer stages changes and triggers `git commit`.
-2. The local pre-commit hook captures execution flow and runs the `sonar-scanner-cli` container.
-3. Code metrics and compliance gates are checked directly against the central SonarQube server.
-4. If a severe bug, code smell, or credential leak is found, the hook returns a non-zero exit code, breaking the execution chain and blocking the commit.
+---
 
-## Local Configuration
-To activate the automation hook locally on a fresh clone, link the tracked script configuration back to your active Git folder:
+## ✨ Key Features
+
+- **Infrastructure as Code (IaC):** Automated AWS sandbox provisioning with Terraform.
+- **Shift-Left Security:** Git pre-commit hooks for static application security testing (SAST).
+- **Containerized Scanning:** Ephemeral Docker containers (`sonarsource/sonar-scanner-cli`) for isolated, repeatable analysis.
+- **Least Privilege AWS IAM:** Secure, minimal-permission roles for compute resources.
+- **Automated Health Checks:** Docker healthcheck and API endpoint for runtime validation.
+
+---
+
+## 🛠️ Project Structure
+
+```
+├── app/
+│   ├── main.py              # Flask API for health and data endpoint
+│   ├── requirements.txt     # Python dependencies
+│   └── security/            # (Reserved for security modules)
+├── scripts/
+│   └── pre-commit           # Git pre-commit hook script
+├── terraform/
+│   ├── main.tf              # AWS infrastructure (EC2, SG, IAM, etc.)
+│   ├── variables.tf         # Terraform variables
+│   └── providers.tf         # Terraform provider config
+├── dockerfile               # Multi-stage Docker build for secure runtime
+├── sq-token                 # SonarQube token (DO NOT COMMIT SENSITIVE TOKENS)
+└── README.md                # Project documentation
+```
+
+---
+
+## ⚡ Quickstart
+
+### 1. Clone & Configure
+
 ```bash
-cp .githooks/pre-commit .git/hooks/pre-commit
+git clone <this-repo-url>
+cd DevSecOps-SonarQube-Pipeline
+```
+
+### 2. Set Up Pre-commit Hook
+
+```bash
+cp scripts/pre-commit .git/hooks/pre-commit
 chmod +x .git/hooks/pre-commit
+```
+
+### 3. Build & Run Locally (Docker)
+
+```bash
+docker build -t devsecops-app .
+docker run -p 8080:8080 devsecops-app
+```
+
+### 4. Deploy AWS Infrastructure
+
+```bash
+cd terraform
+terraform init
+terraform apply
+```
+
+---
+
+## 🔒 Security & Compliance
+
+- All secrets (e.g., SonarQube tokens) must be managed via environment variables or secure vaults.
+- The pre-commit hook blocks commits if critical issues are found by SonarQube.
+- AWS resources are provisioned with least-privilege IAM roles and strict security groups.
+
+---
+
+## 📦 API Endpoints
+
+| Method | Endpoint     | Description                |
+|--------|-------------|----------------------------|
+| GET    | `/`         | Health check/status        |
+| POST   | `/api/data` | Accepts `{ "input": str }` |
+
+---
+
+## 📝 Notes
+
+- Ensure Docker and Terraform are installed locally.
+- The `sq-token` file should **never** be committed to version control.
+- For SonarQube integration, set the `SONAR_HOST` and `sq-token` environment variables.
+
+---
+
+## 👤 Author
+
+*OmarWazery*
+
+---
+
+
