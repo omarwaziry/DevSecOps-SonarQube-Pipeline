@@ -36,6 +36,9 @@ This project provides a robust, cloud-native CI pipeline for code quality and co
 - **Infrastructure as Code (IaC):** Automated AWS sandbox provisioning with Terraform.
 - **Shift-Left Security:** Git pre-commit hooks for static application security testing (SAST).
 - **Containerized Scanning:** Ephemeral Docker containers (`sonarsource/sonar-scanner-cli`) for isolated, repeatable analysis.
+- **Production-Grade Containerization:** Uses an advanced multi-stage build design pattern, compiling dependencies in a build stage and transferring them to a minimal python:3.11-slim runner image to reduce the attack surface.
+
+- **Non-Root Runtime Enforcement:** Containers execute processes using a dedicated, non-privileged system user (USER 10001) to eliminate container breakout risks.
 - **Least Privilege AWS IAM:** Secure, minimal-permission roles for compute resources.
 - **Automated Health Checks:** Docker healthcheck and API endpoint for runtime validation.
 
@@ -45,9 +48,8 @@ This project provides a robust, cloud-native CI pipeline for code quality and co
 
 ```
 ├── app/
-│   ├── main.py              # Flask API for health and data endpoint
-│   ├── requirements.txt     # Python dependencies
-│   └── security/            # (Reserved for security modules)
+│   ├── main.py              # Flask API for health  and data endpoint
+│   └── requirements.txt     # Python dependencies
 ├── scripts/
 │   └── pre-commit           # Git pre-commit hook script
 ├── terraform/
